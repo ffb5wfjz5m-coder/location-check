@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Check — by Nico Hambleton</title>
+  <meta name="description" content="Free UK location scouting tool for DOPs, directors and production managers.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="hdr">
+    <div class="hdr-inner">
+      <div class="hdr-left">
+        <a class="hdr-logo-link" href="https://nicocam.com" target="_blank">
+          <img src="images/logo.png" alt="nicocam.com" class="hdr-logo-img">
+        </a>
+        <div class="hdr-divider"></div>
+        <span class="hdr-tool-name">Location Check</span>
+      </div>
+      <div class="hdr-right">
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+          <span class="theme-icon" id="themeIcon">☀</span>
+        </button>
+        <a class="hdr-link" href="https://nicocam.com" target="_blank">nicocam.com ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="hero-tag">Free UK tool · by Nico Hambleton DOP</p>
+      <h1>Scout smarter.<br><em>Know before you go.</em></h1>
+      <p class="hero-sub">Enter any UK address or postcode — get light quality, sun position, wind &amp; weather, sound score, drone airspace, land permissions, parking, emergency services and more. Built for DOPs, directors and production managers.</p>
+
+      <!-- SEARCH PANEL -->
+      <div class="search-panel">
+
+        <!-- Row 1: Address + Date + Button -->
+        <div class="search-row">
+          <div class="addr-wrap">
+            <input class="addr-input" id="addr" type="text"
+              placeholder="Address or postcode — e.g. Glencoe, Highland or SW1A 1AA"
+              autocomplete="off" spellcheck="false">
+            <div class="autocomplete-list" id="acList"></div>
+          </div>
+          <div class="date-wrap">
+            <input class="date-input" id="shootDate" type="date">
+          </div>
+          <button class="run-btn" id="runBtn" onclick="runCheck()">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="6" cy="6" r="4.5"/>
+              <path d="m9.5 9.5 3 3"/>
+            </svg>
+            Run check
+          </button>
+        </div>
+
+        <!-- Row 2: Options -->
+        <div class="options-row">
+          <span class="options-label">Mode:</span>
+          <div class="toggle-pill">
+            <button id="t-day"   class="on" onclick="setTime('day')">Day</button>
+            <button id="t-night"           onclick="setTime('night')">Night</button>
+          </div>
+          <div class="toggle-pill">
+            <button id="t-ext"  class="on" onclick="setInt('ext')">Exterior</button>
+            <button id="t-intr"            onclick="setInt('intr')">Interior</button>
+          </div>
+          <div class="opts-sep"></div>
+          <span class="options-label">Units:</span>
+          <div class="unit-toggle">
+            <button class="ut-btn on" id="u-met" onclick="setUnits('met')">Metric</button>
+            <button class="ut-btn"    id="u-imp" onclick="setUnits('imp')">Imperial</button>
+            <button class="ut-btn"    id="u-avn" onclick="setUnits('avn')">Aviation</button>
+          </div>
+        </div>
+
+      </div>
+
+      <p class="disclaimer">Indicative data only — always verify on location before any shoot.</p>
+      <div class="error-bar" id="errorBar"></div>
+      <div class="status-bar" id="statusBar">
+        <div class="spinner"></div>
+        <div>
+          <div class="status-main" id="statusMain">Looking up address...</div>
+          <div class="status-sub"  id="statusSub">geocoding</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- RESULTS — injected by JS -->
+  <div class="results-wrap" id="results"></div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="https://nicocam.com" target="_blank">
+          <img src="images/logo.png" alt="nicocam.com" class="footer-logo">
+        </a>
+        <div class="footer-info">
+          <span class="footer-name">Nico Hambleton — Director of Photography</span>
+          <div class="footer-links">
+            <a href="https://nicocam.com" target="_blank">nicocam.com</a>
+            <span>·</span>
+            <a href="mailto:hello&#64;nicocam&#46;com">hello&#64;nicocam&#46;com</a>
+            <span>·</span>
+            <a href="https://instagram.com/nicocamnh" target="_blank">@nicocamnh</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-right">
+        <span class="footer-tag">V1 BETA · UK ONLY · INDICATIVE DATA</span>
+        <a href="mailto:hello&#64;nicocam&#46;com" class="footer-bug">Found a bug? Get in touch ↗</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- JS files uncommented one by one as we build them -->
+  <!-- <script src="js/core.js"></script>       -->
+  <!-- <script src="js/sun.js"></script>        -->
+  <!-- <script src="js/weather.js"></script>    -->
+  <!-- <script src="js/sound.js"></script>      -->
+  <!-- <script src="js/permissions.js"></script>-->
+  <!-- <script src="js/drone.js"></script>      -->
+  <!-- <script src="js/map.js"></script>        -->
+  <!-- <script src="js/services.js"></script>   -->
+  <!-- <script src="js/results.js"></script>    -->
+
+  <script>
+    // Theme toggle — works before other JS loads
+    function toggleTheme() {
+      const isDark = document.body.classList.toggle('dark');
+      document.getElementById('themeIcon').textContent = isDark ? '☾' : '☀';
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    // Restore saved theme
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark');
+      document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('themeIcon').textContent = '☾';
+      });
+    }
+
+    // Placeholder toggle functions — replaced by core.js later
+    function setTime(t)  { ['day','night'].forEach(x => document.getElementById('t-'+x).classList.toggle('on', x===t)); }
+    function setInt(i)   { ['ext','intr'].forEach(x => document.getElementById('t-'+x).classList.toggle('on', x===i)); }
+    function setUnits(u) { ['met','imp','avn'].forEach(x => document.getElementById('u-'+x).classList.toggle('on', x===u)); }
+    function runCheck()  { alert('Almost ready — functionality coming soon!'); }
+
+    // Set today as default date
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('shootDate').value = new Date().toISOString().split('T')[0];
+    });
+  </script>
+
+</body>
+</html>
