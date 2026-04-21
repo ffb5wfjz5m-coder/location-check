@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Check — by Nico Hambleton</title>
+  <meta name="description" content="Free UK location scouting tool for DOPs, directors and production managers. Sun position, weather, sound score, drone airspace, land permissions and more.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- Leaflet map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <!-- Our styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════ -->
+  <header class="hdr" id="hdr">
+    <div class="hdr-inner">
+
+      <!-- Logo + tool name -->
+      <a class="hdr-logo" href="https://nicocam.com" target="_blank">
+        <img src="images/logo.png" alt="nicocam.com" class="hdr-logo-img">
+        <div class="hdr-divider"></div>
+        <span class="hdr-tool-name">Location Check</span>
+      </a>
+
+      <!-- Right side -->
+      <div class="hdr-right">
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+          <span class="theme-icon">☀</span>
+        </button>
+        <a class="hdr-link" href="https://nicocam.com" target="_blank">nicocam.com ↗</a>
+      </div>
+
+    </div>
+  </header>
+
+
+  <!-- ══════════════════════════════════════
+       HERO
+  ══════════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero-inner">
+
+      <p class="hero-tag">Free UK tool · by Nico Hambleton DOP</p>
+      <h1>Scout smarter.<br><em>Know before you go.</em></h1>
+      <p class="hero-sub">Enter any UK address or postcode — get light quality, sun position, wind &amp; weather, sound score, drone airspace, land permissions, parking, emergency services and more. Built for DOPs, directors and production managers.</p>
+
+      <!-- ── SEARCH PANEL ── -->
+      <div class="search-panel">
+
+        <!-- Row 1: Address + Date + Button -->
+        <div class="search-row">
+          <div class="addr-wrap">
+            <input
+              class="addr-input"
+              id="addr"
+              type="text"
+              placeholder="Address or postcode — e.g. Glencoe, Highland or SW1A 1AA"
+              autocomplete="off"
+              spellcheck="false"
+            >
+            <!-- Autocomplete dropdown -->
+            <div class="autocomplete-list" id="acList"></div>
+          </div>
+          <div class="date-wrap">
+            <input class="date-input" id="shootDate" type="date">
+          </div>
+          <button class="run-btn" id="runBtn" onclick="runCheck()">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="6" cy="6" r="4.5"/>
+              <path d="m9.5 9.5 3 3"/>
+            </svg>
+            Run check
+          </button>
+        </div>
+
+        <!-- Row 2: Options -->
+        <div class="options-row">
+
+          <!-- Shoot type -->
+          <span class="options-label">Shoot type:</span>
+          <button class="pill on" id="opt-doc"   onclick="setOpt('doc')">Documentary</button>
+          <button class="pill"    id="opt-brand" onclick="setOpt('brand')">Branded</button>
+          <button class="pill"    id="opt-int"   onclick="setOpt('int')">Interview</button>
+          <button class="pill"    id="opt-drone" onclick="setOpt('drone')">Drone heavy</button>
+
+          <div class="opts-sep"></div>
+
+          <!-- Day / Night -->
+          <div class="toggle-pill">
+            <button id="t-day"   class="on" onclick="setTime('day')">Day</button>
+            <button id="t-night"           onclick="setTime('night')">Night</button>
+          </div>
+
+          <!-- Exterior / Interior -->
+          <div class="toggle-pill">
+            <button id="t-ext"  class="on" onclick="setInt('ext')">Exterior</button>
+            <button id="t-intr"            onclick="setInt('intr')">Interior</button>
+          </div>
+
+          <!-- Units -->
+          <div class="unit-toggle">
+            <button class="ut-btn on" id="u-met" onclick="setUnits('met')">Metric</button>
+            <button class="ut-btn"    id="u-imp" onclick="setUnits('imp')">Imperial</button>
+            <button class="ut-btn"    id="u-avn" onclick="setUnits('avn')">Aviation</button>
+          </div>
+
+        </div>
+
+      </div>
+      <!-- end search panel -->
+
+      <!-- Disclaimer -->
+      <p class="disclaimer">Indicative data only — always verify on location before any shoot.</p>
+
+      <!-- Error message -->
+      <div class="error-bar" id="errorBar"></div>
+
+      <!-- Status / loading bar -->
+      <div class="status-bar" id="statusBar">
+        <div class="spinner"></div>
+        <div>
+          <div class="status-main" id="statusMain">Looking up address...</div>
+          <div class="status-sub"  id="statusSub">geocoding</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       RESULTS
+       All sections are injected here by JS
+  ══════════════════════════════════════ -->
+  <div class="results-wrap" id="results"></div>
+
+
+  <!-- ══════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer-inner">
+
+      <div class="footer-left">
+        <a href="https://nicocam.com" target="_blank">
+          <img src="images/logo.png" alt="nicocam.com" class="footer-logo">
+        </a>
+        <div class="footer-info">
+          <span class="footer-name">Nico Hambleton — Director of Photography</span>
+          <div class="footer-links">
+            <a href="https://nicocam.com" target="_blank">nicocam.com</a>
+            <span>·</span>
+            <a href="mailto:hello@nicocam.com">hello@nicocam.com</a>
+            <span>·</span>
+            <a href="https://instagram.com/nicocamnh" target="_blank">@nicocamnh</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-right">
+        <span class="footer-tag">V1 BETA · UK ONLY · INDICATIVE DATA</span>
+        <a href="mailto:hello@nicocam.com" class="footer-bug">Found a bug? Get in touch ↗</a>
+      </div>
+
+    </div>
+  </footer>
+
+
+  <!-- ══════════════════════════════════════
+       SCRIPTS — load order matters
+  ══════════════════════════════════════ -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/sun.js"></script>
+  <script src="js/weather.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/permissions.js"></script>
+  <script src="js/drone.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/services.js"></script>
+  <script src="js/results.js"></script>
+
+</body>
+</html>
