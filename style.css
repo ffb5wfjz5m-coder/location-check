@@ -502,7 +502,6 @@ h1 em {
   border: 1px solid var(--border-2);
   border-radius: var(--r);
   overflow: hidden;
-  margin-left: auto;
 }
 
 .ut-btn {
