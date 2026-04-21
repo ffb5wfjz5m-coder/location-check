@@ -146,7 +146,7 @@ a {
 }
 
 .hdr-logo-img {
-  height: 32px;
+  height: 42px;
   filter: invert(1) brightness(2);
   opacity: 0.9;
 }
@@ -1236,7 +1236,7 @@ a.ext-link:hover {
 }
 
 .footer-logo {
-  height: 15px;
+  height: 32px;
   filter: invert(1) brightness(2);
   opacity: 0.45;
 }
