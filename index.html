@@ -60,16 +60,6 @@
 
         <!-- Row 2: Options -->
         <div class="options-row">
-          <span class="options-label">Mode:</span>
-          <div class="toggle-pill">
-            <button id="t-day"   class="on" onclick="setTime('day')">Day</button>
-            <button id="t-night"           onclick="setTime('night')">Night</button>
-          </div>
-          <div class="toggle-pill">
-            <button id="t-ext"  class="on" onclick="setInt('ext')">Exterior</button>
-            <button id="t-intr"            onclick="setInt('intr')">Interior</button>
-          </div>
-          <div class="opts-sep"></div>
           <span class="options-label">Units:</span>
           <div class="unit-toggle">
             <button class="ut-btn on" id="u-met" onclick="setUnits('met')">Metric</button>
@@ -138,8 +128,6 @@
   <script>
 
     // Placeholder toggle functions — replaced by core.js later
-    function setTime(t)  { ['day','night'].forEach(x => document.getElementById('t-'+x).classList.toggle('on', x===t)); }
-    function setInt(i)   { ['ext','intr'].forEach(x => document.getElementById('t-'+x).classList.toggle('on', x===i)); }
     function setUnits(u) { ['met','imp','avn'].forEach(x => document.getElementById('u-'+x).classList.toggle('on', x===u)); }
     function runCheck()  { alert('Almost ready — functionality coming soon!'); }
 
