@@ -426,6 +426,7 @@ h1 em {
   gap: 6px;
   flex-wrap: wrap;
   align-items: center;
+   justify-content: flex-end;
 }
 
 .options-label {
