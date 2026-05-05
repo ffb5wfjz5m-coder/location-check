@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Check — by Nico Hambleton</title>
+  <meta name="description" content="Free UK location scouting tool for DOPs, directors and production managers.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="hdr">
+    <div class="hdr-inner">
+      <div class="hdr-left">
+        <a class="hdr-logo-link" href="https://nicocam.com" target="_blank">
+          <img src="images/Nicocam Logo Website.png" alt="nicocam.com" class="hdr-logo-img">
+        </a>
+        <div class="hdr-divider"></div>
+        <a class="hdr-tool-name" href="/">Location Check</a>
+      </div>
+      <div class="hdr-right">
+        <a class="hdr-link" href="https://nicocam.com" target="_blank">nicocam.com ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="hero-tag">Free UK tool · by Nico Hambleton DOP</p>
+      <h1>Scout smarter.<br><em>Know before you go.</em></h1>
+      <p class="hero-sub">Enter any UK address or postcode — get light quality, sun position, wind &amp; weather, sound score, drone airspace, land permissions, parking, emergency services and more. Built for DOPs, directors and production managers.</p>
+
+      <!-- SEARCH PANEL -->
+      <div class="search-panel">
+
+        <!-- Tabs -->
+<div class="search-tabs">
+  <button class="search-tab on" data-tab="address">📍 Address</button>
+  <button class="search-tab" data-tab="coords">🔢 Coordinates</button>
+  <button class="search-tab" data-tab="map">🗺 Map</button>
+</div>
+
+<div class="search-row">
+
+  <div class="search-mode search-mode-address">
+    <div class="addr-wrap">
+      <input class="addr-input" id="addr" type="text"
+        placeholder="Address or postcode — e.g. Glencoe, Highland or SW1A 1AA"
+        autocomplete="off" spellcheck="false">
+      <div class="autocomplete-list" id="acList"></div>
+    </div>
+  </div>
+
+  <div class="search-mode search-mode-coords" style="display:none;">
+    <input class="addr-input" id="latInput" type="text" placeholder="Latitude (e.g. 51.4567)">
+    <input class="addr-input" id="lonInput" type="text" placeholder="Longitude (e.g. -0.9821)">
+  </div>
+
+  <div class="search-mode search-mode-map" style="display:none;">
+    <div class="map-picker-wrap">
+  <div id="mapPicker" class="map-picker"></div>
+
+  <div class="map-picker-info">
+    <span id="mapCoords" title="Click to copy coordinates">Click map to select location</span>
+
+    <button class="map-locate-btn" type="button" onclick="useMyLocation()">
+      📍 Use my location
+    </button>
+    <div class="map-type-toggle">
+  <button class="map-type-btn on" type="button" onclick="setMapPickerType('map')">Map</button>
+  <button class="map-type-btn" type="button" onclick="setMapPickerType('satellite')">Satellite</button>
+</div>
+  </div>
+</div>
+  </div>
+
+  <div class="date-wrap">
+    <input class="date-input" id="shootDate" type="date">
+  </div>
+
+  <button class="run-btn" id="runBtn" onclick="runCheck()">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="6" cy="6" r="4.5"/>
+      <path d="m9.5 9.5 3 3"/>
+    </svg>
+    Run check
+  </button>
+
+</div>
+
+<!-- Row: Recent locations -->
+<div class="recent-locations" id="recentLocations" style="display:none;"></div>
+
+        <!-- Row 2: Options -->
+        <div class="options-row mode-row">
+          <span class="options-label">View:</span>
+          <div class="mode-toggle">
+            <button class="mode-btn on" type="button" data-mode="all" onclick="setViewMode('all')">All</button>
+            <button class="mode-btn" type="button" data-mode="visual" onclick="setViewMode('visual')">🎥 Visual</button>
+            <button class="mode-btn" type="button" data-mode="logistics" onclick="setViewMode('logistics')">🛠 Logistics</button>
+            <button class="mode-btn" type="button" data-mode="drone" onclick="setViewMode('drone')">🚁 Drone</button>
+            <button class="mode-btn" type="button" data-mode="sound" onclick="setViewMode('sound')">🎙 Sound</button>
+          </div>
+        </div>
+
+      </div>
+
+      <p class="disclaimer">Indicative data only — always verify on location before any shoot.</p>
+      <div class="error-bar" id="errorBar"></div>
+      <div class="status-bar" id="statusBar">
+        <div class="spinner"></div>
+        <div>
+          <div class="status-main" id="statusMain">Looking up address...</div>
+          <div class="status-sub"  id="statusSub">geocoding</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- RESULTS — injected by JS -->
+  <div class="results-wrap" id="results"></div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="https://nicocam.com" target="_blank">
+          <img src="images/Nicocam Logo Website.png" alt="nicocam.com" class="footer-logo">
+        </a>
+        <div class="footer-info">
+          <span class="footer-name">Nico Hambleton — Director of Photography</span>
+          <div class="footer-links">
+            <a href="https://nicocam.com" target="_blank">nicocam.com</a>
+            <span>·</span>
+            <a href="mailto:hello&#64;nicocam&#46;com">hello&#64;nicocam&#46;com</a>
+            <span>·</span>
+            <a href="https://instagram.com/nicocamnh" target="_blank">@nicocamnh</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-right">
+        <span class="footer-tag">V1 BETA · UK ONLY · INDICATIVE DATA</span>
+        <a href="mailto:hello&#64;nicocam&#46;com" class="footer-bug">Found a bug? Get in touch ↗</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- JS files uncommented one by one as we build them -->
+  <script src="js/data.js"></script>
+  <script src="https://unpkg.com/suncalc@1.9.0/suncalc.js"></script>
+  <script src="js/results.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/weather.js"></script>
+  <script src="js/sun.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/permissions.js"></script>
+  <script src="js/drone.js"></script>
+  <script src="js/services.js"></script>
+  <script src="js/risks.js"></script>
+  <script src="js/parking.js"></script>
+  <script src="js/connectivity.js"></script>
+  <script src="js/core.js"></script>
+  
+
+
+
+  <script>
+    // Date default and autocomplete init are handled by core.js
+  </script>
+
+</body>
+</html>
