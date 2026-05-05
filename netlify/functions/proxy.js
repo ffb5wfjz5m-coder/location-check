@@ -1,4 +1,4 @@
-export async function handler(event) {
+exports.handler = async function(event) {
   try {
     const path = event.path || "";
     const query = event.queryStringParameters || {};
@@ -47,4 +47,4 @@ export async function handler(event) {
       body: JSON.stringify({ error: error.message })
     };
   }
-}
+};
