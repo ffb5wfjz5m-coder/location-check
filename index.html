@@ -189,13 +189,25 @@
 
 <script>
   function checkPassword() {
-    const input = document.getElementById("password-input").value;
-    if (input === "locationtest") {
-      document.getElementById("password-gate").style.display = "none";
-    } else {
-      document.getElementById("password-error").style.display = "block";
-    }
+  const input = document.getElementById("password-input").value;
+  if (input === "locationtest") {
+    sessionStorage.setItem("lc_unlocked", "true");
+    document.getElementById("password-gate").style.display = "none";
+  } else {
+    document.getElementById("password-error").style.display = "block";
   }
+}
+
+// Always run on load
+window.addEventListener("DOMContentLoaded", () => {
+  const unlocked = sessionStorage.getItem("lc_unlocked");
+
+  if (unlocked === "true") {
+    document.getElementById("password-gate").style.display = "none";
+  } else {
+    document.getElementById("password-gate").style.display = "flex";
+  }
+});
 </script>
 </body>
 </html>
